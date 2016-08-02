@@ -3,7 +3,8 @@ import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List exposing (..)
-import String
+import String exposing (join, split)
+import Regex exposing (contains, regex)
 import Task
 import Process
 
@@ -51,7 +52,7 @@ update msg model =
           if atEnd then
             ({newModel | playing = False}, Cmd.none)
           else
-            (newModel, waitNext model)
+            (newModel, waitNext newModel)
 
       else
         (model, Cmd.none)
@@ -60,7 +61,7 @@ update msg model =
       (model, Cmd.none)
 
     Change newContent ->
-      ({ model | words = String.split " " newContent, position = 0, playing = True }, waitNext model)
+      ({ model | words = split " " newContent, position = 0, playing = True }, waitNext model)
 
     Pause ->
       let playing = not model.playing in
@@ -97,8 +98,19 @@ subscriptions model =
 
 waitNext : Model -> Cmd Msg
 waitNext model =
-  Task.perform TickFail Tick <| Process.sleep (toFloat (model.wordSpan * 60000 // model.wpm))
+  let
+    extraDelay = if containsBreak (nextWords model) then 120000 // model.wpm else 0
+    delay = (toFloat (model.wordSpan * 60000 // model.wpm + extraDelay))
+  in
+    Task.perform TickFail Tick <| Process.sleep delay
 
+containsBreak : List String -> Bool
+containsBreak words =
+  contains (regex "[,.-]") (join "" words)
+
+nextWords : Model -> List String
+nextWords model =
+  take model.wordSpan <| drop model.position model.words
 
 -- VIEW
 
@@ -117,10 +129,11 @@ view model =
     , button [ onClick SpanDown ] [ text "-" ]
     , text (toString model.wordSpan)
     , button [ onClick SpanUp ] [ text "+" ]
+    , a [href "http://github.com/DestyNova/blinkenwords-elm"] [text "Source"]
     , div [style
         [("textAlign", "center")
         ,("color", "red")
         ,("backgroundColor", "cornsilk")
         ,("lineHeight", "150%")
-        ], onClick Pause] <| List.concatMap (\w -> [text w, br [] []]) (take model.wordSpan <| drop model.position model.words)
+        ], onClick Pause] <| List.concatMap (\w -> [text w, br [] []]) (nextWords model)
     ]

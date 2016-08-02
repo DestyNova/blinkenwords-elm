@@ -1,0 +1,4 @@
+- Alter text position and colour very slightly on alternate "pages" to avoid repetition blindness
+- Add some styling to make things not look awful
+- Find a way to access clipboard without pasting into an input (then control focus won't be a problem)
+- Add keyboard shortcuts (z = Rew, x = Pause, c = Fw, n = Change?)
