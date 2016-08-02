@@ -1,3 +1,4 @@
 #/bin/sh
-elm-make blinkenwords.elm --output blinkenwords.js
-uglifyjs blinkenwords.js -o blinkenwords.min.js
+mkdir build
+elm-make blinkenwords.elm --output build/blinkenwords.js
+uglifyjs build/blinkenwords.js -o build/blinkenwords.min.js
