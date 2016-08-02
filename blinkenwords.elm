@@ -36,14 +36,21 @@ init =
 type Msg
   = Tick Time | Change String | SpeedUp | SpeedDown | SpanUp | SpanDown | Rew | Fw | Pause
 
+step model =
+  { model | position = Basics.min (List.length model.words - model.wordSpan) (model.position + model.wordSpan) }
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Tick newTime ->
-      if model.playing then
-        update Fw model
-      else
-        (model, Cmd.none)
+      (
+        if model.playing then
+          step model
+        else
+          model
+
+        , Cmd.none
+      )
 
     Change newContent ->
       ({ model | words = String.split " " newContent, position = 0, playing = True }, Cmd.none)
@@ -52,10 +59,11 @@ update msg model =
       ({ model | playing = not model.playing }, Cmd.none)
 
     Rew ->
-      ({ model | position = Basics.max 0 (model.position - model.wordSpan) }, Cmd.none)
+      ({ model | playing = False, position = Basics.max 0 (model.position - model.wordSpan) }, Cmd.none)
 
     Fw ->
-      ({ model | position = Basics.min (List.length model.words - model.wordSpan) (model.position + model.wordSpan) }, Cmd.none)
+      let newModel = step model in
+        ({newModel | playing = False}, Cmd.none)
 
     SpeedDown ->
       ({ model | position = Basics.max 100 (model.wpm - 5) }, Cmd.none)
