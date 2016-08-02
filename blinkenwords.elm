@@ -98,12 +98,16 @@ view : Model -> Html Msg
 view model =
   div []
     [ input [ placeholder "Source text", onInput Change ] []
-    , button [ onClick Pause ] [ text "|>" ]
+    , button [ onClick Pause ] [ text (if model.playing then "⏸" else "▶") ]
     , button [ onClick Rew ] [ text "<<" ]
     , button [ onClick Fw ] [ text ">>" ]
+    , text "WPM:"
     , button [ onClick SpeedDown ] [ text "-" ]
+    , text (toString model.wpm)
     , button [ onClick SpeedUp ] [ text "+" ]
+    , text "Span:"
     , button [ onClick SpanDown ] [ text "-" ]
+    , text (toString model.wordSpan)
     , button [ onClick SpanUp ] [ text "+" ]
     , div [style
         [("textAlign", "center")
