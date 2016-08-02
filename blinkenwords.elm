@@ -37,16 +37,24 @@ type Msg
   = Tick () | TickFail () | Change String | SpeedUp | SpeedDown | SpanUp | SpanDown | Rew | Fw | Pause
 
 step model =
-  { model | position = Basics.min (List.length model.words - model.wordSpan) (model.position + model.wordSpan) }
+  { model | position = Basics.min (length model.words - model.wordSpan) (model.position + model.wordSpan) }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Tick _ ->
       if model.playing then
-         (step model, waitNext model)
-       else
-         (model, Cmd.none)
+        let
+          newModel = step model
+          atEnd = newModel.position + newModel.wordSpan >= length newModel.words
+        in
+          if atEnd then
+            ({newModel | playing = False}, Cmd.none)
+          else
+            (newModel, waitNext model)
+
+      else
+        (model, Cmd.none)
 
     TickFail _ ->
       (model, Cmd.none)
@@ -112,6 +120,7 @@ view model =
     , div [style
         [("textAlign", "center")
         ,("color", "red")
+        ,("backgroundColor", "cornsilk")
         ,("lineHeight", "150%")
-        ]] <| List.concatMap (\w -> [text w, br [] []]) (take model.wordSpan <| drop model.position model.words)
+        ], onClick Pause] <| List.concatMap (\w -> [text w, br [] []]) (take model.wordSpan <| drop model.position model.words)
     ]
