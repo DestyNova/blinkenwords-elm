@@ -88,5 +88,9 @@ view model =
     , button [ onClick SpeedUp ] [ text "+" ]
     , button [ onClick SpanDown ] [ text "-" ]
     , button [ onClick SpanUp ] [ text "+" ]
-    , div [style [("textAlign", "center")]] <| List.concatMap (\w -> [text w, br [] []]) (take model.wordSpan <| drop model.position model.words)
+    , div [style
+        [("textAlign", "center")
+        ,("color", "red")
+        ,("lineHeight", "150%")
+        ]] <| List.concatMap (\w -> [text w, br [] []]) (take model.wordSpan <| drop model.position model.words)
     ]
