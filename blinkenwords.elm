@@ -37,6 +37,7 @@ init =
 type Msg
   = Tick () | TickFail () | Change String | SpeedUp | SpeedDown | SpanUp | SpanDown | Rew | Fw | Pause
 
+step : Model -> Model
 step model =
   { model | position = Basics.min (length model.words - model.wordSpan) (model.position + model.wordSpan) }
 
