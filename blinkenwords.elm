@@ -76,10 +76,10 @@ update msg model =
         ({newModel | playing = False}, Cmd.none)
 
     SpeedDown ->
-      ({ model | position = Basics.max 100 (model.wpm - 5) }, Cmd.none)
+      ({ model | wpm = Basics.max 100 (model.wpm - 5) }, Cmd.none)
 
     SpeedUp ->
-      ({ model | position = Basics.min 1000 (model.wpm + 5) }, Cmd.none)
+      ({ model | wpm = Basics.min 1000 (model.wpm + 5) }, Cmd.none)
 
     SpanDown ->
       ({ model | wordSpan = Basics.max 1 (model.wordSpan - 1) }, Cmd.none)
