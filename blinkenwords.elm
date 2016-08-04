@@ -39,7 +39,7 @@ type Msg
 
 step : Model -> Model
 step model =
-  { model | position = Basics.min (length model.words - model.wordSpan) (model.position + model.wordSpan) }
+  { model | position = Basics.min (length model.words - 1) (model.position + model.wordSpan) }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -117,7 +117,10 @@ nextWords model =
 
 view : Model -> Html Msg
 view model =
-  div []
+  div [style
+      [("margin", "0 auto")
+      ,("maxWidth", "50em")
+      ]]
     [ input [ placeholder "Source text", onInput Change ] []
     , button [ onClick Pause ] [ text (if model.playing then "⏸" else "▶") ]
     , button [ onClick Rew ] [ text "<<" ]

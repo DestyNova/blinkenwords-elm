@@ -1,2 +1,2 @@
 #!/bin/sh
-ruby -run -ehttpd . -p 8086
+ruby -run -ehttpd build -p 8086
