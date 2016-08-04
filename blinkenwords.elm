@@ -120,6 +120,8 @@ view model =
   div [style
       [("margin", "0 auto")
       ,("maxWidth", "50em")
+      ,("fontFamily", "'Helvetica', 'Arial', 'sans-serif'")
+      ,("textAlign", "center")
       ]]
     [ input [ placeholder "Source text", onInput Change ] []
     , button [ onClick Pause ] [ text (if model.playing then "⏸" else "▶") ]
@@ -134,10 +136,12 @@ view model =
     , text (toString model.wordSpan)
     , button [ onClick SpanUp ] [ text "+" ]
     , a [href "http://github.com/DestyNova/blinkenwords-elm"] [text "Source"]
+
+    -- TODO: extract this to another function
     , div [style
-        [("textAlign", "center")
-        ,("color", "red")
+        [("color", "red")
         ,("backgroundColor", "cornsilk")
         ,("lineHeight", "150%")
+        ,("margin", "0.5em")
         ], onClick Pause] <| List.concatMap (\w -> [text w, br [] []]) (nextWords model)
     ]
