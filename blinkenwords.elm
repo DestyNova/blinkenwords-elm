@@ -165,30 +165,38 @@ view model =
             , ( "maxWidth", "50em" )
             , ( "fontFamily", "'Helvetica', 'Arial', 'sans-serif'" )
             , ( "textAlign", "center" )
+            , ( "padding", "8px" )
             ]
         ]
-        [ input [ placeholder "Source text", onInput Change ] []
-        , button [ onClick Pause ]
-            [ text
-                (if model.playing then
-                    "⏸"
-                 else
-                    "▶"
-                )
+        [ div
+            [ style
+                [ ( "background", "#eeeeee" ) ]
             ]
-        , button [ onClick Rew ] [ text "<<" ]
-        , button [ onClick Fw ] [ text ">>" ]
-        , text "WPM:"
-        , button [ onClick SpeedDown ] [ text "-" ]
-        , text (toString model.wpm)
-        , button [ onClick SpeedUp ] [ text "+" ]
-        , text "Span:"
-        , button [ onClick SpanDown ] [ text "-" ]
-        , text (toString model.wordSpan)
-        , button [ onClick SpanUp ] [ text "+" ]
-        , a [ href "http://github.com/DestyNova/blinkenwords-elm" ] [ text "Source" ]
-        , makeProgressBar (model.position + model.wordSpan) (length model.words)
-        , makeReadingPane <| List.concatMap (\w -> [ text w, br [] [] ]) (nextWords model)
+            [ input [ placeholder "Source text", onInput Change ] []
+            , button [ onClick Pause ]
+                [ text
+                    (if model.playing then
+                        "⏸"
+                     else
+                        "▶"
+                    )
+                ]
+            , button [ onClick Rew ] [ text "<<" ]
+            , button [ onClick Fw ] [ text ">>" ]
+            , text "WPM:"
+            , button [ onClick SpeedDown ] [ text "-" ]
+            , text (toString model.wpm)
+            , button [ onClick SpeedUp ] [ text "+" ]
+            , text "Span:"
+            , button [ onClick SpanDown ] [ text "-" ]
+            , text (toString model.wordSpan)
+            , button [ onClick SpanUp ] [ text "+" ]
+            , a [ href "http://github.com/DestyNova/blinkenwords-elm" ] [ text "Source" ]
+            ]
+        , div []
+            [ makeProgressBar (model.position + model.wordSpan) (length model.words)
+            , makeReadingPane <| List.concatMap (\w -> [ text w, br [] [] ]) (nextWords model)
+            ]
         ]
 
 
