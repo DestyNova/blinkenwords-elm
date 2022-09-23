@@ -1,17 +1,18 @@
 module Main exposing (..)
 
+import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List exposing (..)
 import String exposing (join, split)
-import Regex exposing (contains, regex)
+import Regex exposing (contains)
 import Task
 import Process
 
 
 main =
-    program
+    Browser.element
         { init = init
         , view = view
         , update = update
@@ -32,8 +33,8 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
-init =
+init : () -> ( Model, Cmd Msg )
+init _ =
     ( { words = [], wpm = 270, wordSpan = 3, position = 0, playing = False }, Cmd.none )
 
 
@@ -145,7 +146,7 @@ waitNext model =
 
 containsBreak : List String -> Bool
 containsBreak words =
-    contains (regex "[,.-]") (join "" words)
+    contains (Maybe.withDefault Regex.never <| Regex.fromString "[,.-]") (join "" words)
 
 
 nextWords : Model -> List String
@@ -160,18 +161,14 @@ nextWords model =
 view : Model -> Html Msg
 view model =
     div
-        [ style
-            [ ( "margin", "0 auto" )
-            , ( "maxWidth", "50em" )
-            , ( "fontFamily", "'Helvetica', 'Arial', 'sans-serif'" )
-            , ( "textAlign", "center" )
-            , ( "padding", "8px" )
-            ]
+        [ style "margin" "0 auto"
+        , style "maxWidth" "50em"
+        , style "fontFamily" "'Helvetica', 'Arial', 'sans-serif'"
+        , style "textAlign" "center"
+        , style "padding" "8px"
         ]
         [ div
-            [ style
-                [ ( "background", "#eeeeee" ) ]
-            ]
+            [ style "background" "#eeeeee" ]
             [ input [ placeholder "Source text", onInput Change ] []
             , button [ onClick Pause ]
                 [ text
@@ -185,17 +182,17 @@ view model =
             , button [ onClick Fw ] [ text ">>" ]
             , text "WPM:"
             , button [ onClick SpeedDown ] [ text "-" ]
-            , text (toString model.wpm)
+            , text (Debug.toString model.wpm)
             , button [ onClick SpeedUp ] [ text "+" ]
             , text "Span:"
             , button [ onClick SpanDown ] [ text "-" ]
-            , text (toString model.wordSpan)
+            , text (Debug.toString model.wordSpan)
             , button [ onClick SpanUp ] [ text "+" ]
             , a [ href "http://github.com/DestyNova/blinkenwords-elm" ] [ text "Source" ]
             ]
         , div []
             [ makeProgressBar (model.position + model.wordSpan) (length model.words)
-            , makeReadingPane <| List.concatMap (\w -> [ text w, br [] [] ]) (nextWords model)
+            , makeReadingPane (List.concatMap (\w -> [ text w, br [] [] ]) (nextWords model)) model.wordSpan
             ]
         ]
 
@@ -203,48 +200,42 @@ view model =
 makeProgressBar : Int -> Int -> Html Msg
 makeProgressBar position numWords =
     div
-        [ style
-            [ ( "border-radius", "15px" )
-            , ( "height", "12px" )
-            , ( "background", "#555" )
-            , ( "box-shadow", "inset 0 -1px 1px rgba(255,255,255,0.3)" )
-            , ( "padding", "2px" )
-            , ( "position", "relative" )
-            ]
+        [ style "border-radius" "15px"
+        , style "height" "12px"
+        , style "background" "#555"
+        , style "box-shadow" "inset 0 -1px 1px rgba(255,255,255,0.3)"
+        , style "padding" "2px"
+        , style "position" "relative"
         ]
         [ span
-            [ style
-                [ ( "height", "100%" )
-                , ( "display", "block" )
-                , ( "height", "100%" )
-                , ( "border-top-right-radius", "8px" )
-                , ( "border-bottom-right-radius", "8px" )
-                , ( "border-top-left-radius", "20px" )
-                , ( "border-bottom-left-radius", "20px" )
-                , ( "background-color", "rgb(43,194,83)" )
-                , ( "background-image", "linear-gradient( center bottom, rgb(43,194,83) 37%, rgb(84,240,84) 69%)" )
-                , ( "box-shadow", "inset 0 2px 9px  rgba(255,255,255,0.3), inset 0 -2px 6px rgba(0,0,0,0.4)" )
-                , ( "position", "relative" )
-                , ( "overflow", "hidden" )
-                , ( "width", toString (Basics.min 100 <| position * 100 // numWords) ++ "%" )
-                ]
+            [ style "height" "100%"
+            , style "display" "block"
+            , style "height" "100%"
+            , style "border-top-right-radius" "8px"
+            , style "border-bottom-right-radius" "8px"
+            , style "border-top-left-radius" "20px"
+            , style "border-bottom-left-radius" "20px"
+            , style "background-color" "rgb(43,194,83)"
+            , style "background-image" "linear-gradient( center bottom, rgb(43,194,83) 37%, rgb(84,240,84) 69%)"
+            , style "box-shadow" "inset 0 2px 9px  rgba(255,255,255,0.3), inset 0 -2px 6px rgba(0,0,0,0.4)"
+            , style "position" "relative"
+            , style "overflow" "hidden"
+            , style "width" (Debug.toString (Basics.min 100 <| position * 100 // numWords) ++ "%")
             ]
             []
         ]
 
 
-makeReadingPane : List (Html Msg) -> Html Msg
-makeReadingPane nextChunk =
+makeReadingPane : List (Html Msg) -> Int -> Html Msg
+makeReadingPane nextChunk rows =
     div
-        [ style
-            [ ( "color", "red" )
-            , ( "backgroundColor", "cornsilk" )
-            , ( "border", "1px solid black" )
-            , ( "box-shadow", "4px 4px 4px 0px rgba(0,0,0,0.75)" )
-            , ( "lineHeight", "150%" )
-            , ( "height", "4.5em" )
-            , ( "margin", "0.5em" )
-            ]
+        [ style "color" "red"
+        , style "backgroundColor" "cornsilk"
+        , style "border" "1px solid black"
+        , style "box-shadow" "4px 4px 4px 0px rgba(0,0,0,0.75)"
+        , style "lineHeight" "150%"
+        , style "height" (Debug.toString (1.5 * toFloat rows) ++ "em")
+        , style "margin" "0.5em"
         , onClick Pause
         ]
         nextChunk
